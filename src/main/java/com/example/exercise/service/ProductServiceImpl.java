@@ -1,0 +1,85 @@
+package com.example.exercise.service;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.example.exercise.dto.ProductCreateRequest;
+import com.example.exercise.dto.ProductUpdateRequest;
+import com.example.exercise.entity.Product;
+import com.example.exercise.repository.ProductJpaRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class ProductServiceImpl implements ProductService {
+
+    private final ProductJpaRepository productRepository;
+
+    @Override
+    @Transactional
+    public Product create(ProductCreateRequest request) {
+        Product product = Product.create(
+                toUuid(request.sellerId(), "sellerId"),
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stock(),
+                request.status(),
+                toUuid(request.creatorId(), "creatorId")
+        );
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product getById(UUID productId) {
+        Product product = findByIdOrThrow(productId);
+        return product;
+    }
+
+    @Override
+    public List<Product> getAll() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public Product update(UUID productId, ProductUpdateRequest request) {
+        Product product = findByIdOrThrow(productId);
+        product.update(
+                request.name(),
+                request.description(),
+                request.price(),
+                request.stock(),
+                request.status(),
+                toUuid(request.modifierId(), "modifierId")
+        );
+        return product;
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID productId) {
+        Product product = findByIdOrThrow(productId);
+        productRepository.delete(product);
+    }
+
+    private Product findByIdOrThrow(UUID productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+    }
+
+    private UUID toUuid(String value, String fieldName) {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " must be valid UUID");
+        }
+    }
+}
