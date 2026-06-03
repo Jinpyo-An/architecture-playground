@@ -1,4 +1,4 @@
-package com.example.exercise.service;
+package com.example.exercise.product.application.service;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,19 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.exercise.dto.ProductCreateRequest;
-import com.example.exercise.dto.ProductUpdateRequest;
-import com.example.exercise.entity.Product;
-import com.example.exercise.repository.ProductJpaRepository;
+import com.example.exercise.product.application.usecase.ProductUseCase;
+import com.example.exercise.product.domain.model.Product;
+import com.example.exercise.product.domain.repository.ProductRepository;
+import com.example.exercise.product.presentation.dto.ProductCreateRequest;
+import com.example.exercise.product.presentation.dto.ProductUpdateRequest;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public class ProductService implements ProductUseCase {
 
-    private final ProductJpaRepository productRepository;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional

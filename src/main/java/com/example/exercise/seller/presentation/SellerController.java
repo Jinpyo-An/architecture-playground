@@ -1,4 +1,4 @@
-package com.example.exercise.controller;
+package com.example.exercise.seller.presentation;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.exercise.dto.SellerCreateRequest;
-import com.example.exercise.dto.SellerUpdateRequest;
-import com.example.exercise.entity.Seller;
-import com.example.exercise.service.SellerService;
+import com.example.exercise.seller.application.usecase.SellerUseCase;
+import com.example.exercise.seller.domain.model.Seller;
+import com.example.exercise.seller.presentation.dto.SellerCreateRequest;
+import com.example.exercise.seller.presentation.dto.SellerUpdateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SellerController {
 
-    private final SellerService sellerService;
+    private final SellerUseCase sellerUseCase;
 
     @PostMapping
     @Operation(summary = "판매자 생성", description = "신규 판매자를 생성합니다.")
@@ -42,7 +42,7 @@ public class SellerController {
             @ApiResponse(responseCode = "400", description = "요청 값 오류")
     })
     public ResponseEntity<Seller> create(@RequestBody SellerCreateRequest request) {
-        Seller response = sellerService.create(request);
+        Seller response = sellerUseCase.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -54,7 +54,7 @@ public class SellerController {
             @ApiResponse(responseCode = "404", description = "판매자 없음")
     })
     public Seller getById(@Parameter(description = "판매자 UUID") @PathVariable UUID sellerId) {
-        return sellerService.getById(sellerId);
+        return sellerUseCase.getById(sellerId);
     }
 
     @GetMapping
@@ -63,7 +63,7 @@ public class SellerController {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     public List<Seller> getAll() {
-        return sellerService.getAll();
+        return sellerUseCase.getAll();
     }
 
     @PutMapping("/{sellerId}")
@@ -75,7 +75,7 @@ public class SellerController {
     })
     public Seller update(@Parameter(description = "판매자 UUID") @PathVariable UUID sellerId,
                          @RequestBody SellerUpdateRequest request) {
-        return sellerService.update(sellerId, request);
+        return sellerUseCase.update(sellerId, request);
     }
 
     @DeleteMapping("/{sellerId}")
@@ -85,7 +85,7 @@ public class SellerController {
             @ApiResponse(responseCode = "404", description = "판매자 없음")
     })
     public ResponseEntity<Void> delete(@Parameter(description = "판매자 UUID") @PathVariable UUID sellerId) {
-        sellerService.delete(sellerId);
+        sellerUseCase.delete(sellerId);
         return ResponseEntity.noContent().build();
     }
 }

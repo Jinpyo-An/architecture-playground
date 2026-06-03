@@ -1,4 +1,4 @@
-package com.example.exercise.dto;
+package com.example.exercise.seller.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

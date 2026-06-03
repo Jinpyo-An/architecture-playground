@@ -1,11 +1,13 @@
-package com.example.exercise.dto;
+package com.example.exercise.product.presentation.dto;
 
 import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "상품 수정 정보")
-public record ProductUpdateRequest(
+@Schema(description = "상품 생성 정보")
+public record ProductCreateRequest(
+        @Schema(description = "판매자 ID", example = "11111111-1111-1111-1111-111111111111")
+        String sellerId,
         @Schema(description = "상품명", example = "맥북 프로 14")
         String name,
         @Schema(description = "상품 설명", example = "M3 칩셋, 16GB RAM")
@@ -16,7 +18,7 @@ public record ProductUpdateRequest(
         Integer stock,
         @Schema(description = "상태", example = "ACTIVE")
         String status,
-        @Schema(description = "수정자 ID", example = "33333333-3333-3333-3333-333333333333")
-        String modifierId
+        @Schema(description = "등록자 ID", example = "22222222-2222-2222-2222-222222222222")
+        String creatorId
 ) {
 }

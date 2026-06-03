@@ -1,4 +1,4 @@
-package com.example.exercise.entity;
+package com.example.exercise.seller.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

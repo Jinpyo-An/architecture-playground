@@ -1,4 +1,4 @@
-package com.example.exercise.service;
+package com.example.exercise.seller.application.service;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,19 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.exercise.dto.SellerCreateRequest;
-import com.example.exercise.dto.SellerUpdateRequest;
-import com.example.exercise.entity.Seller;
-import com.example.exercise.repository.SellerJpaRepository;
+import com.example.exercise.seller.application.usecase.SellerUseCase;
+import com.example.exercise.seller.domain.model.Seller;
+import com.example.exercise.seller.domain.repository.SellerRepository;
+import com.example.exercise.seller.presentation.dto.SellerCreateRequest;
+import com.example.exercise.seller.presentation.dto.SellerUpdateRequest;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SellerServiceImpl implements SellerService {
+public class SellerService implements SellerUseCase {
 
-    private final SellerJpaRepository sellerRepository;
+    private final SellerRepository sellerRepository;
 
     @Override
     @Transactional
