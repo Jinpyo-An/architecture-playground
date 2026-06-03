@@ -3,6 +3,8 @@ package com.example.exercise.seller.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.example.exercise.seller.domain.model.BusinessVerification;
+import com.example.exercise.seller.infrastructure.acl.BusinessVerificationAcl;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +24,16 @@ import lombok.RequiredArgsConstructor;
 public class SellerService implements SellerUseCase {
 
     private final SellerRepository sellerRepository;
+    private final BusinessVerificationAcl businessVerificationAcl;
 
     @Override
     @Transactional
     public Seller create(SellerCreateRequest request) {
+        BusinessVerification verification = businessVerificationAcl.verify(request.businessNumber());
+        if (!verification.valid()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Business number is not valid");
+        }
+
         Seller seller = Seller.create(
                 request.email(),
                 request.name(),

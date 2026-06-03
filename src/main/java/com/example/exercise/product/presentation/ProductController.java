@@ -31,7 +31,9 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("${api.init}/product")
 @RequiredArgsConstructor
 public class ProductController {
+
     private final ProductUseCase productUseCase;
+
     @PostMapping
     @Operation(summary = "상품 생성", description = "신규 상품을 생성합니다.")
     @ApiResponses({

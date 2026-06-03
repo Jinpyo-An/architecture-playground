@@ -20,11 +20,12 @@ import com.example.exercise.payment.domain.repository.PaymentFailureRepository;
 import com.example.exercise.payment.domain.repository.PaymentRepository;
 import com.example.exercise.payment.infrastructure.acl.TossPaymentAcl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentService implements PaymentUseCase {
+
     private final PaymentRepository paymentRepository;
     private final PaymentFailureRepository paymentFailureRepository;
     private final TossPaymentAcl tossPaymentAcl;

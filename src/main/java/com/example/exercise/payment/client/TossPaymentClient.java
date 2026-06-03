@@ -18,17 +18,17 @@ import com.example.exercise.payment.client.dto.TossPaymentResponse;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class TossPaymentClient {
 
     private static final String CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
-
     private final RestClient restClient;
     @Value("${payment.toss.secret-key}")
     private String secretKey;
-    public TossPaymentResponse confirm(PaymentCommand command) throws HttpStatusCodeException{
-        if(secretKey == null){
+
+    public TossPaymentResponse confirm(PaymentCommand command) throws HttpStatusCodeException {
+        if (secretKey == null) {
             throw new IllegalStateException("Toss secret key is not configured");
         }
         //토스에 요청할 header
@@ -44,6 +44,7 @@ public class TossPaymentClient {
     /**
      * 토스에 전달하는 헤더값<br>
      * 헤더 생성 함수
+     *
      * @return
      */
     private HttpHeaders createHeaders() {
