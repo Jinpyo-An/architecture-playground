@@ -20,7 +20,7 @@ import com.example.exercise.payment.presentation.dto.PaymentRequest;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("${api.init}/payments")
 public class PaymentController {
 
     @Autowired
