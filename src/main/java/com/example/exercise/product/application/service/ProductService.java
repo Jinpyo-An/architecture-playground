@@ -3,6 +3,8 @@ package com.example.exercise.product.application.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.example.exercise.product.application.acl.SellerValidationAcl;
+import com.example.exercise.product.domain.model.SellerValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,17 @@ import lombok.RequiredArgsConstructor;
 public class ProductService implements ProductUseCase {
 
     private final ProductRepository productRepository;
+    private final SellerValidationAcl sellerValidationAcl;
 
     @Override
     @Transactional
     public Product create(ProductCreateRequest request) {
+        SellerValidation sellerValidation = sellerValidationAcl.validate(toUuid(request.sellerId(), "sellerId"));
+        if (!sellerValidation.isActive()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seller is not active");
+        }
         Product product = Product.create(
-                toUuid(request.sellerId(), "sellerId"),
+                sellerValidation.sellerId(),
                 request.name(),
                 request.description(),
                 request.price(),
