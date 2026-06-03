@@ -11,5 +11,9 @@ spring:
     hibernate:
       ddl-auto: update
 
+payment:
+  toss:
+    secret-key: ${TOSS_PAYMENT_SECRET}
+
 api:
   init: /api/v1
