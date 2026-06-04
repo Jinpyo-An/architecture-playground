@@ -22,3 +22,8 @@ payment:
 
 api:
   init: /api/v1
+
+settlement:
+  batch:
+    cron: "0 0 3 * * *"
+    actor-id: 00000000-0000-0000-0000-000000000000
