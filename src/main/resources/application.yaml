@@ -17,3 +17,9 @@ payment:
 
 api:
   init: /api/v1
+
+order:
+  auto-cancel:
+    timeout-hours: 24
+    cron: "0 */10 * * * *"
+    batch-size: 500

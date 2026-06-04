@@ -58,12 +58,20 @@ public class Order {
     private BigDecimal netAmount;
 
     @Column(nullable = false, length = 20)
-    @Comment("주문 상태(PAID, CANCELED, REFUNDED 등)")
+    @Comment("주문 상태(PAYMENT_WAIT, PAID, CANCELED, REFUNDED 등)")
     private String status;
 
     @Column(name = "paid_at")
     @Comment("결제 완료 시각")
     private LocalDateTime paidAt;
+
+    @Column(name = "canceled_at")
+    @Comment("주문 취소 시각")
+    private LocalDateTime canceledAt;
+
+    @Column(name = "cancel_reason", length = 30)
+    @Comment("취소 사유(AUTO_TIMEOUT 등)")
+    private String cancelReason;
 
     @Column(name = "settled", nullable = false)
     @Comment("정산 완료 여부")
@@ -164,7 +172,7 @@ public class Order {
             quantity = 1;
         }
         if (status == null || status.isBlank()) {
-            status = "READY";
+            status = "PAYMENT_WAIT";
         }
         if (settled == null) {
             settled = false;
@@ -216,8 +224,21 @@ public class Order {
     }
 
     public void markPaid(LocalDateTime paidAt, UUID actorId) {
+        if ("CANCELED".equals(this.status)) {
+            throw new IllegalStateException("Cannot mark canceled order as paid: " + this.id);
+        }
         this.status = "PAID";
         this.paidAt = paidAt == null ? LocalDateTime.now() : paidAt;
+        this.modifyId = actorId;
+    }
+
+    public void markCanceled(String reason, UUID actorId) {
+        if (!"PAYMENT_WAIT".equals(this.status)) {
+            throw new IllegalStateException("Only PAYMENT_WAIT orders can be canceled: " + this.id);
+        }
+        this.status = "CANCELED";
+        this.canceledAt = LocalDateTime.now();
+        this.cancelReason = reason;
         this.modifyId = actorId;
     }
 }

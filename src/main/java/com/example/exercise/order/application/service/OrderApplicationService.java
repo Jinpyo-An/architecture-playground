@@ -1,5 +1,6 @@
 package com.example.exercise.order.application.service;
 
+import com.example.exercise.order.application.dto.CancelTimedOutOrdersCommand;
 import com.example.exercise.order.application.dto.CreateOrderCommand;
 import com.example.exercise.order.application.dto.MarkOrderPaidCommand;
 import com.example.exercise.order.application.dto.MarkOrdersSettledCommand;
@@ -8,6 +9,7 @@ import com.example.exercise.order.application.usecase.OrderUseCase;
 import com.example.exercise.order.domain.model.Order;
 import com.example.exercise.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -64,6 +67,23 @@ public class OrderApplicationService implements OrderUseCase {
                     .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
             order.markSettled(command.settlementBatchId(), actorId);
         });
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int cancelTimedOutOrders(CancelTimedOutOrdersCommand command) {
+        UUID actorId = command.actorId() == null ? UUID.randomUUID() : command.actorId();
+        List<Order> targets = orderRepository.findTimedOutPaymentWaitOrders(command.cutoffAt(), command.batchSize());
+        int canceled = 0;
+        for (Order order : targets) {
+            try {
+                order.markCanceled("AUTO_TIMEOUT", actorId);
+                canceled++;
+            } catch (IllegalStateException e) {
+                log.warn("skip cancel (status changed): orderId={} status={}", order.getId(), order.getStatus());
+            }
+        }
+        return canceled;
     }
 
     @Override

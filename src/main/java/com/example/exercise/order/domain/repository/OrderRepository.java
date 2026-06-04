@@ -19,4 +19,6 @@ public interface OrderRepository {
     List<Order> findUnsettledPaidOrders(LocalDateTime fromInclusive, LocalDateTime toExclusive);
 
     Optional<Order> findByOrderNo(String orderNo);
+
+    List<Order> findTimedOutPaymentWaitOrders(LocalDateTime cutoffAt, int limit);
 }

@@ -3,6 +3,7 @@ package com.example.exercise.order.infrastructure.persistence;
 import com.example.exercise.order.domain.model.Order;
 import com.example.exercise.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -43,5 +44,10 @@ public class OrderRepositoryAdapter implements OrderRepository {
     @Override
     public Optional<Order> findByOrderNo(String orderNo) {
         return orderJpaRepository.findByOrderNo(orderNo);
+    }
+
+    @Override
+    public List<Order> findTimedOutPaymentWaitOrders(LocalDateTime cutoffAt, int limit) {
+        return orderJpaRepository.findTimedOutPaymentWaitOrders(cutoffAt, PageRequest.of(0, limit));
     }
 }

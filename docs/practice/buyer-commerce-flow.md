@@ -70,11 +70,11 @@ Seller가 없거나 ACTIVE가 아니면 Product 생성은 실패한다.
 결제 버튼 클릭
  -> createOrder()
  -> POST /api/v1/orders
- -> Order READY 생성
+ -> Order PAYMENT_WAIT 생성
  -> 응답 orderNo 반환
 ```
 
-Order 생성 시 기본 상태는 `READY`다.
+Order 생성 시 기본 상태는 `PAYMENT_WAIT`다.
 
 결제가 아직 완료되지 않았으므로 `paidAt`은 비어 있을 수 있다.
 
@@ -175,7 +175,7 @@ Order
 ## 핵심 포인트
 
 - Product는 Seller를 직접 의존하지 않고 ACL로 검증한다.
-- Order는 결제 전 `READY` 상태로 생성된다.
+- Order는 결제 전 `PAYMENT_WAIT` 상태로 생성된다.
 - Payment 완료 후 바로 Order를 직접 수정하지 않고 이벤트로 연결한다.
 - `AFTER_COMMIT` 이후 DB 변경은 새 트랜잭션이 필요하다.
 - 구매 기준 결제 금액은 `grossAmount`다.
