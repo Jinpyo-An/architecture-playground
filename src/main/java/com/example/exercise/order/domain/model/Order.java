@@ -217,4 +217,10 @@ public class Order {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
         return "ORD-" + timestamp + "-" + suffix;
     }
+
+    public void markPaid(LocalDateTime paidAt, UUID actorId) {
+        this.status = "PAID";
+        this.paidAt = paidAt == null ? LocalDateTime.now() : paidAt;
+        this.modifyId = actorId;
+    }
 }

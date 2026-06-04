@@ -1,6 +1,7 @@
 package com.example.exercise.order.application.service;
 
 import com.example.exercise.order.application.dto.CreateOrderCommand;
+import com.example.exercise.order.application.dto.MarkOrderPaidCommand;
 import com.example.exercise.order.application.dto.OrderResult;
 import com.example.exercise.order.application.usecase.OrderUseCase;
 import com.example.exercise.order.domain.model.Order;
@@ -44,6 +45,15 @@ public class OrderApplicationService implements OrderUseCase {
     }
 
     @Override
+    @Transactional
+    public OrderResult markPaid(MarkOrderPaidCommand command) {
+        Order order = orderRepository.findByOrderNo(command.orderNo())
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + command.orderNo()));
+        order.markPaid(command.paidAt(), resolveActorId(command));
+        return toResponse(order);
+    }
+
+    @Override
     public List<OrderResult> findAll() {
         return orderRepository.findAll().stream()
                 .map(this::toResponse)
@@ -67,6 +77,13 @@ public class OrderApplicationService implements OrderUseCase {
         }
         if (command.buyerId() != null) {
             return command.buyerId();
+        }
+        return UUID.randomUUID();
+    }
+
+    private UUID resolveActorId(MarkOrderPaidCommand command) {
+        if (command.actorId() != null) {
+            return command.actorId();
         }
         return UUID.randomUUID();
     }

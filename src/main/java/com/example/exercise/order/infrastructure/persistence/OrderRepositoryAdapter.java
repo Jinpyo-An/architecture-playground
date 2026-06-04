@@ -39,4 +39,9 @@ public class OrderRepositoryAdapter implements OrderRepository {
                 toExclusive
         );
     }
+
+    @Override
+    public Optional<Order> findByOrderNo(String orderNo) {
+        return orderJpaRepository.findByOrderNo(orderNo);
+    }
 }

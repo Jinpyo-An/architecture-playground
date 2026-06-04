@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderJpaRepository extends JpaRepository<Order, UUID> {
@@ -14,4 +15,6 @@ public interface OrderJpaRepository extends JpaRepository<Order, UUID> {
             LocalDateTime fromInclusive,
             LocalDateTime toExclusive
     );
+
+    Optional<Order> findByOrderNo(String orderNo);
 }
