@@ -164,10 +164,7 @@ public class Order {
             quantity = 1;
         }
         if (status == null || status.isBlank()) {
-            status = "PAID";
-        }
-        if (paidAt == null) {
-            paidAt = LocalDateTime.now();
+            status = "READY";
         }
         if (settled == null) {
             settled = false;

@@ -8,6 +8,7 @@ import com.example.exercise.order.domain.model.Order;
 import com.example.exercise.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -45,7 +46,7 @@ public class OrderApplicationService implements OrderUseCase {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OrderResult markPaid(MarkOrderPaidCommand command) {
         Order order = orderRepository.findByOrderNo(command.orderNo())
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + command.orderNo()));
