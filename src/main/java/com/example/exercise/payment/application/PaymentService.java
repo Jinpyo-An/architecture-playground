@@ -3,6 +3,8 @@ package com.example.exercise.payment.application;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.exercise.payment.application.event.PaymentConfirmedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import com.example.exercise.payment.domain.repository.PaymentRepository;
 import com.example.exercise.payment.infrastructure.acl.TossPaymentAcl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class PaymentService implements PaymentUseCase {
     private final PaymentRepository paymentRepository;
     private final PaymentFailureRepository paymentFailureRepository;
     private final TossPaymentAcl tossPaymentAcl;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ResponseEntity<List<PaymentInfo>> findAll(Pageable pageable) {
         Page<Payment> page = paymentRepository.findAll(pageable);
@@ -38,6 +42,7 @@ public class PaymentService implements PaymentUseCase {
         return ResponseEntity.status(HttpStatus.OK).body(payments);
     }
 
+    @Transactional
     public ResponseEntity<PaymentInfo> confirm(PaymentCommand command) {
         PaymentConfirmation confirmation = tossPaymentAcl.confirm(command);
         //        UUID orderId = UUID.fromString(confirmation.orderId());
@@ -51,6 +56,13 @@ public class PaymentService implements PaymentUseCase {
         payment.markConfirmed(confirmation.method(), confirmation.approvedAt(), confirmation.requestedAt());
 
         Payment saved = paymentRepository.save(payment);
+        eventPublisher.publishEvent(new PaymentConfirmedEvent(
+                saved.getId(),
+                saved.getOrderId(),
+                saved.getPaymentKey(),
+                saved.getAmount(),
+                saved.getApprovedAt()
+        ));
         return ResponseEntity.status(HttpStatus.CREATED).body(PaymentInfo.from(saved));
     }
 
