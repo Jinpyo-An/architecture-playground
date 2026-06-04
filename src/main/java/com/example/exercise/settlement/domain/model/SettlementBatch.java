@@ -84,6 +84,14 @@ public class SettlementBatch {
         totalSettlementAmount = totalSettlementAmount.add(item.getSettlementAmount());
     }
 
+    public void completeTotals(SettlementItemTotals totals) {
+        this.totalGrossAmount = totals.totalGrossAmount();
+        this.totalFeeAmount = totals.totalFeeAmount();
+        this.totalRefundAmount = totals.totalRefundAmount();
+        this.totalSettlementAmount = totals.totalSettlementAmount();
+        this.status = SettlementStatus.COMPLETED;
+    }
+
     @PrePersist
     public void onCreate() {
         if (id == null) {

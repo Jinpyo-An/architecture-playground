@@ -68,7 +68,7 @@ public class SettlementItem {
         return new SettlementItem(order);
     }
 
-    void assignBatch(SettlementBatch batch) {
+    public void assignBatch(SettlementBatch batch) {
         this.batch = batch;
     }
 
