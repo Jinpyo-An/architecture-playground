@@ -17,8 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +35,7 @@ public class SettlementApplicationService implements SettlementUseCase {
 
     @Override
     @Transactional
-    public SettlementBatchResult execute(ExecuteSettlementCommand command) {
+    public List<SettlementBatchResult> execute(ExecuteSettlementCommand command) {
         LocalDate settlementDate = command.settlementDate() == null ? LocalDate.now() : command.settlementDate();
         UUID actorId = command.actorId() == null ? UUID.randomUUID() : command.actorId();
         List<SettlementOrder> orders = settlementOrderAcl.findSettlementCandidates(settlementDate);
@@ -40,20 +44,34 @@ public class SettlementApplicationService implements SettlementUseCase {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Settlement candidate order not found");
         }
 
-        SettlementBatch batch = SettlementBatch.create(settlementDate, actorId);
-        orders.stream()
-                .map(SettlementItem::from)
-                .forEach(batch::addItem);
+        Map<UUID, List<SettlementOrder>> ordersBySeller = orders.stream()
+                .collect(Collectors.groupingBy(
+                        SettlementOrder::sellerId,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
 
-        SettlementBatch saved = settlementBatchRepository.save(batch);
-        eventPublisher.publishEvent(new SettlementCompletedEvent(
-                saved.getId(),
-                orders.stream()
-                        .map(SettlementOrder::orderId)
-                        .toList(),
-                actorId
-        ));
-        return SettlementBatchResult.from(saved);
+        List<SettlementBatchResult> results = new ArrayList<>();
+        for (Map.Entry<UUID, List<SettlementOrder>> entry : ordersBySeller.entrySet()) {
+            UUID sellerId = entry.getKey();
+            List<SettlementOrder> sellerOrders = entry.getValue();
+
+            SettlementBatch batch = SettlementBatch.create(settlementDate, sellerId, actorId);
+            sellerOrders.stream()
+                    .map(SettlementItem::from)
+                    .forEach(batch::addItem);
+
+            SettlementBatch saved = settlementBatchRepository.save(batch);
+            eventPublisher.publishEvent(new SettlementCompletedEvent(
+                    saved.getId(),
+                    sellerOrders.stream()
+                            .map(SettlementOrder::orderId)
+                            .toList(),
+                    actorId
+            ));
+            results.add(SettlementBatchResult.from(saved));
+        }
+        return results;
     }
 
     @Override

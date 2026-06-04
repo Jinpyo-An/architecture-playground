@@ -21,10 +21,12 @@ public class SettlementController {
     private final SettlementUseCase settlementUseCase;
 
     @PostMapping
-    @Operation(summary = "정산 실행", description = "정산 기준일의 미정산 PAID 주문을 정산합니다.")
-    public ResponseEntity<SettlementBatchResponse> execute(@RequestBody ExecuteSettlementRequest request) {
+    @Operation(summary = "정산 실행", description = "정산 기준일의 미정산 PAID 주문을 판매자별로 묶어 정산 배치를 생성합니다.")
+    public ResponseEntity<List<SettlementBatchResponse>> execute(@RequestBody ExecuteSettlementRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(SettlementBatchResponse.from(settlementUseCase.execute(request.toCommand())));
+                .body(settlementUseCase.execute(request.toCommand()).stream()
+                        .map(SettlementBatchResponse::from)
+                        .toList());
     }
 
     @GetMapping

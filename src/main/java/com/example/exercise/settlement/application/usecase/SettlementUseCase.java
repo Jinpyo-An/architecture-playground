@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SettlementUseCase {
 
-    SettlementBatchResult execute(ExecuteSettlementCommand command);
+    List<SettlementBatchResult> execute(ExecuteSettlementCommand command);
 
     List<SettlementBatchResult> findAll();
 }

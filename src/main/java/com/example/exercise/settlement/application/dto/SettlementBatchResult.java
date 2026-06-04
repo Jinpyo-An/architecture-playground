@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public record SettlementBatchResult(
         UUID id,
+        UUID sellerId,
         LocalDate settlementDate,
         BigDecimal totalGrossAmount,
         BigDecimal totalFeeAmount,
@@ -25,6 +26,7 @@ public record SettlementBatchResult(
     public static SettlementBatchResult from(SettlementBatch batch) {
         return new SettlementBatchResult(
                 batch.getId(),
+                batch.getSellerId(),
                 batch.getSettlementDate(),
                 batch.getTotalGrossAmount(),
                 batch.getTotalFeeAmount(),

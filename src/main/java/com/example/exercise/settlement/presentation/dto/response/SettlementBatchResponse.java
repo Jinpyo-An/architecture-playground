@@ -14,6 +14,8 @@ import java.util.UUID;
 public record SettlementBatchResponse(
         @Schema(description = "정산 배치 ID(UUID)")
         UUID id,
+        @Schema(description = "판매자 ID(UUID)")
+        UUID sellerId,
         @Schema(description = "정산 기준일")
         LocalDate settlementDate,
         @Schema(description = "총 주문 금액")
@@ -37,6 +39,7 @@ public record SettlementBatchResponse(
     public static SettlementBatchResponse from(SettlementBatchResult result) {
         return new SettlementBatchResponse(
                 result.id(),
+                result.sellerId(),
                 result.settlementDate(),
                 result.totalGrossAmount(),
                 result.totalFeeAmount(),

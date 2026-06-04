@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +25,10 @@ public class SettlementBatch {
     @Column(name = "settlement_date", nullable = false)
     @Comment("정산 기준일")
     private LocalDate settlementDate;
+
+    @Column(name = "seller_id")
+    @Comment("판매자 ID(UUID)")
+    private UUID sellerId;
 
     @Column(name = "total_gross_amount", nullable = false, precision = 15, scale = 2)
     @Comment("총 주문 금액")
@@ -60,9 +65,10 @@ public class SettlementBatch {
     protected SettlementBatch() {
     }
 
-    private SettlementBatch(LocalDate settlementDate, UUID actorId) {
+    private SettlementBatch(LocalDate settlementDate, UUID sellerId, UUID actorId) {
         this.id = UUID.randomUUID();
         this.settlementDate = settlementDate;
+        this.sellerId = Objects.requireNonNull(sellerId, "sellerId");
         this.totalGrossAmount = BigDecimal.ZERO;
         this.totalFeeAmount = BigDecimal.ZERO;
         this.totalRefundAmount = BigDecimal.ZERO;
@@ -71,8 +77,8 @@ public class SettlementBatch {
         this.regId = actorId;
     }
 
-    public static SettlementBatch create(LocalDate settlementDate, UUID actorId) {
-        return new SettlementBatch(settlementDate, actorId);
+    public static SettlementBatch create(LocalDate settlementDate, UUID sellerId, UUID actorId) {
+        return new SettlementBatch(settlementDate, sellerId, actorId);
     }
 
     public void addItem(SettlementItem item) {
