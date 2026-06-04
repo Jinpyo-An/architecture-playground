@@ -10,6 +10,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
 
 payment:
   toss:
