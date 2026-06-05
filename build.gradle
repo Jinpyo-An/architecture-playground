@@ -51,6 +51,14 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-config'//config 정보 연결.
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'//bootstrap.yaml을 읽어와서 먼저 적용하기 위한 라이브러리
 
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.12.3'
+
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

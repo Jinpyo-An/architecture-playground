@@ -41,5 +41,9 @@ eureka:
     service-url:
       defaultZone: http://admin:admin@${eureka.instance.hostname:localhost}:8761/euraka
 
+jwt:
+  private-key: ${PRIVATE_KEY}
+  public-key: ${PUBLIC_KEY}
+
 server:
-  port: 0
+  port: 8080
