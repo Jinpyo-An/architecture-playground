@@ -2,19 +2,19 @@ spring:
   config:
     import: optional:file:.env[.properties]
   application:
-    name: exercise
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
-  jpa:
-    hibernate:
-      ddl-auto: update
-  batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: always
+    name: exercise-service
+#  datasource:
+#    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}
+#    username: ${DB_USERNAME:}
+#    password: ${DB_PASSWORD:}
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#  batch:
+#    job:
+#      enabled: false
+#    jdbc:
+#      initialize-schema: always
 
 payment:
   toss:
@@ -27,3 +27,19 @@ settlement:
   batch:
     cron: "0 0 3 * * *"
     actor-id: 00000000-0000-0000-0000-000000000000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, info
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://admin:admin@${eureka.instance.hostname:localhost}:8761/euraka
+
+server:
+  port: 0
