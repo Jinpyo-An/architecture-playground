@@ -46,4 +46,4 @@ jwt:
   public-key: ${PUBLIC_KEY}
 
 server:
-  port: 8080
+  port: 0
