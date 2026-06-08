@@ -95,8 +95,8 @@ public class OrderApplicationService implements OrderUseCase {
     }
 
     private UUID resolveActorId(MarkOrderPaidCommand command) {
-        if (command.actorId() != null) {
-            return command.actorId();
+        if (command.paymentId() != null) {
+            return command.paymentId();
         }
         return UUID.randomUUID();
     }

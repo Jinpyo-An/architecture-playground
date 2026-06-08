@@ -6,6 +6,6 @@ import java.util.UUID;
 public record MarkOrderPaidCommand(
         String orderNo,
         LocalDateTime paidAt,
-        UUID actorId
+        UUID paymentId
 ) {
 }
