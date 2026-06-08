@@ -9,6 +9,7 @@ import com.example.exercise.member.domain.Member;
 import com.example.exercise.member.domain.repository.MemberRepository;
 import com.example.exercise.member.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +23,7 @@ import java.util.Base64;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MemberService implements MemberUsecase {
     public final JwtProvider jwtProvider;
@@ -61,5 +63,15 @@ public class MemberService implements MemberUsecase {
             //TODO: 존재하지 않는 유저
         }
         return null;
+    }
+
+    @Override
+    public Token refreshToken(String refreshToken) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String subjects = jwtProvider.verifyToken(refreshToken);
+        log.info("subjects = {}", subjects);
+        //TODO: DB구조에 맞춰서 호출
+        Authentication authentication = new UsernamePasswordAuthenticationToken(subjects, null, null);
+        //TODO: DB에 입력
+        return new Token(jwtProvider.generateToken(authentication), jwtProvider.generateRefreshToken(authentication));
     }
 }
