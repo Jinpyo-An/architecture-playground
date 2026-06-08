@@ -47,3 +47,11 @@ jwt:
 
 server:
   port: 0
+
+kafka:
+  enabled: true
+  bootstrap-servers: localhost:9092
+  topic:
+    async-orders: async-orders
+  consumer:
+    group-id: async-sample-group

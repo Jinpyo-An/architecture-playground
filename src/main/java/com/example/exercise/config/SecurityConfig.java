@@ -22,6 +22,8 @@ public class SecurityConfig {
 //                                .requestMatchers("/api/member/**").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/swagger-ui.html").permitAll()
+                                .requestMatchers("/toss-payment.html").permitAll()
+                                .requestMatchers("/payments/**").permitAll()
                                 .requestMatchers("/v3/**").permitAll()
                                 .requestMatchers("/api/**").permitAll()
 //                                .requestMatchers(HttpMethod.POST, "/api/**").permitAll()
