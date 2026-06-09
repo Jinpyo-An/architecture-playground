@@ -4,6 +4,7 @@ import com.example.exercise.order.application.dto.MarkOrderPaidCommand;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Configuration
 @EnableKafka
+@ConditionalOnProperty(prefix = "kafka", name = "enabled", havingValue = "true")
 public class PaymentKafkaConfig {
     @Value("${kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
