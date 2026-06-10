@@ -7,6 +7,7 @@ import com.example.exercise.search.presentation.dto.request.ProductIndexRequest;
 import com.example.exercise.search.presentation.dto.response.IndexStatusResponse;
 import com.example.exercise.search.presentation.dto.response.IndexUpdateResponse;
 import com.example.exercise.search.presentation.dto.response.ProductSearchResponse;
+import com.example.exercise.search.presentation.dto.response.ProductSuggestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -102,5 +103,19 @@ public class ProductSearchController {
     @GetMapping("/products/index")
     public IndexStatusResponse getIndexStatus() {
         return searchService.getProductIndexStatus();
+    }
+
+    @Operation(
+            summary = "상품 자동완성",
+            description = "입력한 키워드 기준으로 상품명 자동완성 목록을 조회합니다."
+    )
+    @GetMapping("/products/suggest")
+    public ProductSuggestResponse suggestProducts(
+            @Parameter(description = "자동완성 키워드", example = "나이")
+            @RequestParam String keyword,
+            @Parameter(description = "최대 반환 개수", example = "10")
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return searchService.suggestProducts(keyword, size);
     }
 }

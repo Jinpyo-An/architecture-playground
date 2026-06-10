@@ -5,10 +5,9 @@ import com.example.exercise.search.infrastructure.ProductSearchRepository;
 import com.example.exercise.search.infrastructure.dto.ProductDocument;
 import com.example.exercise.search.presentation.dto.request.IndexConfigRequest;
 import com.example.exercise.search.presentation.dto.request.ProductIndexRequest;
-import com.example.exercise.search.presentation.dto.response.IndexStatusResponse;
-import com.example.exercise.search.presentation.dto.response.IndexUpdateResponse;
-import com.example.exercise.search.presentation.dto.response.ProductSearchResponse;
+import com.example.exercise.search.presentation.dto.response.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -106,5 +105,32 @@ public class SearchService implements SearchUsecase{
             .toList();
 
         return new ProductSearchResponse(hits.getTotalHits(), items);
+    }
+
+    @Override
+    public ProductSuggestResponse suggestProducts(String keyword, int size) {
+        if (keyword == null || keyword.isBlank()) {
+            return new ProductSuggestResponse(List.of());
+        }
+
+        NativeQuery query = NativeQuery.builder()
+                .withQuery(q -> q.matchPhrasePrefix(m -> m
+                        .field("name")
+                        .query(keyword)))
+                .withPageable(PageRequest.of(0, size))
+                .build();
+
+        SearchHits<ProductDocument> hits = operations.search(query, ProductDocument.class);
+
+        List<ProductSuggestItemResponse> items = hits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .map(doc -> new ProductSuggestItemResponse(
+                        doc.getId(),
+                        doc.getName(),
+                        doc.getBrand()
+                ))
+                .toList();
+
+        return new ProductSuggestResponse(items);
     }
 }
