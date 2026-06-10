@@ -1,5 +1,7 @@
 package com.example.exercise.search.application;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import com.example.exercise.search.infrastructure.ProductSearchRepository;
 import com.example.exercise.search.infrastructure.dto.ProductDocument;
@@ -9,11 +11,10 @@ import com.example.exercise.search.presentation.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregations;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.IndexOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.*;
 import org.springframework.data.elasticsearch.core.document.Document;
 import org.springframework.stereotype.Service;
 
@@ -132,5 +133,77 @@ public class SearchService implements SearchUsecase{
                 .toList();
 
         return new ProductSuggestResponse(items);
+    }
+
+    public ProductFilterAggregationResponse aggregateProductFilters(String keyword) {
+        NativeQuery query = NativeQuery.builder()
+                .withQuery(q -> q.bool(b -> {
+                    if (keyword != null && !keyword.isBlank()) {
+                        b.must(m -> m.match(mm -> mm
+                                .field("name")
+                                .query(keyword)));
+                    }
+                    return b;
+                }))
+                .withMaxResults(0)
+                .withAggregation("brands", Aggregation.of(a -> a
+                        .terms(t -> t.field("brand"))))
+                .withAggregation("categories", Aggregation.of(a -> a
+                        .terms(t -> t.field("category"))))
+                .withAggregation("priceRanges", Aggregation.of(a -> a
+                        .range(r -> r
+                                .field("price")
+                                .ranges(range -> range.key("0-50000").to(50000.0))
+                                .ranges(range -> range.key("50000-100000").from(50000.0).to(100000.0))
+                                .ranges(range -> range.key("100000+").from(100000.0)))))
+                .build();
+
+        SearchHits<ProductDocument> hits = operations.search(query, ProductDocument.class);
+
+        AggregationsContainer<?> aggregations = hits.getAggregations();
+
+        Map<String, Aggregate> aggregateMap = toAggregateMap(aggregations);
+
+        List<ProductFilterBucketResponse> brands = extractTermsBuckets(aggregateMap.get("brands"));
+        List<ProductFilterBucketResponse> categories = extractTermsBuckets(aggregateMap.get("categories"));
+        List<ProductFilterBucketResponse> priceRanges = extractRangeBuckets(aggregateMap.get("priceRanges"));
+
+        return new ProductFilterAggregationResponse(brands, categories, priceRanges);
+    }
+
+    // AggregationsContainer를 이름→Aggregate 맵으로 풀어낸다.
+    private Map<String, Aggregate> toAggregateMap(AggregationsContainer<?> container) {
+        if (!(container instanceof ElasticsearchAggregations esAggs)) {
+            return Map.of();
+        }
+        Map<String, Aggregate> map = new HashMap<>();
+        for (ElasticsearchAggregation aggregation : esAggs.aggregations()) {
+            map.put(aggregation.aggregation().getName(), aggregation.aggregation().getAggregate());
+        }
+        return map;
+    }
+
+    // keyword 필드 terms 집계 결과(StringTermsAggregate)를 버킷 응답으로 변환
+    private List<ProductFilterBucketResponse> extractTermsBuckets(Aggregate aggregate) {
+        if (aggregate == null || !aggregate.isSterms()) {
+            return List.of();
+        }
+        return aggregate.sterms().buckets().array().stream()
+                .map(bucket -> new ProductFilterBucketResponse(
+                        bucket.key().stringValue(),
+                        bucket.docCount()))
+                .toList();
+    }
+
+    // range 집계 결과(RangeAggregate)를 버킷 응답으로 변환. key는 집계 정의 시 지정한 라벨.
+    private List<ProductFilterBucketResponse> extractRangeBuckets(Aggregate aggregate) {
+        if (aggregate == null || !aggregate.isRange()) {
+            return List.of();
+        }
+        return aggregate.range().buckets().array().stream()
+                .map(bucket -> new ProductFilterBucketResponse(
+                        bucket.key(),
+                        bucket.docCount()))
+                .toList();
     }
 }

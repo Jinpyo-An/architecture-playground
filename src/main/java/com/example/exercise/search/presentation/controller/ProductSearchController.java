@@ -4,10 +4,7 @@ import com.example.exercise.search.application.SearchService;
 import com.example.exercise.search.infrastructure.dto.ProductDocument;
 import com.example.exercise.search.presentation.dto.request.IndexConfigRequest;
 import com.example.exercise.search.presentation.dto.request.ProductIndexRequest;
-import com.example.exercise.search.presentation.dto.response.IndexStatusResponse;
-import com.example.exercise.search.presentation.dto.response.IndexUpdateResponse;
-import com.example.exercise.search.presentation.dto.response.ProductSearchResponse;
-import com.example.exercise.search.presentation.dto.response.ProductSuggestResponse;
+import com.example.exercise.search.presentation.dto.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -117,5 +114,17 @@ public class ProductSearchController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return searchService.suggestProducts(keyword, size);
+    }
+
+    @Operation(
+            summary = "상품 필터 집계",
+            description = "검색 키워드를 기준으로 브랜드, 카테고리, 가격대별 개수를 반환합니다."
+    )
+    @GetMapping("/products/filters")
+    public ProductFilterAggregationResponse aggregateProductFilters(
+            @Parameter(description = "검색 키워드", example = "운동화")
+            @RequestParam(required = false) String keyword
+    ) {
+        return searchService.aggregateProductFilters(keyword);
     }
 }
