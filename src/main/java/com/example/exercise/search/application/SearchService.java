@@ -30,6 +30,7 @@ public class SearchService implements SearchUsecase{
 
     private final ElasticsearchOperations operations;
     private final ProductSearchRepository repository;
+    private final SearchKeywordUsecase searchKeywordUsecase;
 
     // 상품 문서를 ES에 저장(id는 ES 자동 생성, updatedAt은 현재 시각)
     public ProductDocument indexProduct(ProductIndexRequest request) {
@@ -80,6 +81,10 @@ public class SearchService implements SearchUsecase{
     }
 
     public ProductSearchResponse searchProducts(String keyword, String category, Pageable pageable) {
+        if (keyword != null && !keyword.isBlank()) {
+            searchKeywordUsecase.recordKeyword(keyword);
+        }
+
         NativeQuery query = NativeQuery.builder()
             .withQuery(q -> q.bool(b -> {
                 if (keyword != null && !keyword.isBlank()) {
