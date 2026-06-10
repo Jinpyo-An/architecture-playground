@@ -9,8 +9,11 @@ import com.example.exercise.search.presentation.dto.response.IndexUpdateResponse
 import com.example.exercise.search.presentation.dto.response.ProductSearchResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +34,31 @@ public class ProductSearchController {
         summary = "상품 검색",
         description = "키워드와 카테고리로 엘라스틱서치 상품 인덱스를 조회합니다."
     )
+    @Parameter(
+        name = "page",
+        description = "페이지 번호 (0부터 시작)",
+        in = ParameterIn.QUERY,
+        schema = @Schema(type = "integer", defaultValue = "0")
+    )
+    @Parameter(
+        name = "size",
+        description = "페이지 크기",
+        in = ParameterIn.QUERY,
+        schema = @Schema(type = "integer", defaultValue = "10")
+    )
+    @Parameter(
+        name = "sort",
+        description = "정렬 기준. `필드명,asc|desc` 형식 (예: `updatedAt,desc`, `price,asc`). 비워두면 ES 기본 점수(_score)순.",
+        in = ParameterIn.QUERY,
+        array = @ArraySchema(schema = @Schema(type = "string", example = "updatedAt,desc"))
+    )
     @GetMapping("/products")
     public ProductSearchResponse searchProducts(
         @Parameter(description = "검색 키워드", example = "남자 신발")
         @RequestParam(required = false) String keyword,
         @Parameter(description = "카테고리 필터", example = "shoes")
         @RequestParam(required = false) String category,
+        @Parameter(hidden = true)
         @PageableDefault(size = 10) Pageable pageable
     ) {
         return searchService.searchProducts(keyword, category, pageable);

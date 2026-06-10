@@ -28,26 +28,9 @@ settlement:
     cron: "0 0 3 * * *"
     actor-id: 00000000-0000-0000-0000-000000000000
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh, health, beans, info
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://admin:admin@${eureka.instance.hostname:localhost}:8761/euraka
-    enabled: false
-
 jwt:
   private-key: ${PRIVATE_KEY}
   public-key: ${PUBLIC_KEY}
-
-server:
-  port: 8080
 
 kafka:
   enabled: false
