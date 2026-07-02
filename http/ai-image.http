@@ -1,0 +1,113 @@
+### AI 이미지 API 테스트
+
+@baseUrl = http://localhost:8080
+@apiPrefix = /api/v1
+
+### ──────────────────────────────────────────
+### 1. 이미지 분석 - 기본 프롬프트 (prompt 생략 → "이 이미지를 설명해줘" 사용)
+### ──────────────────────────────────────────
+# @name analyzeDefault
+POST {{baseUrl}}{{apiPrefix}}/ai/images/analyze
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="image"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+------FormBoundary--
+
+### ──────────────────────────────────────────
+### 2. 이미지 분석 - 커스텀 프롬프트 지정
+### ──────────────────────────────────────────
+# @name analyzeWithPrompt
+POST {{baseUrl}}{{apiPrefix}}/ai/images/analyze?prompt=이 이미지에서 주요 색상과 사물을 알려줘
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="image"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+------FormBoundary--
+
+### ──────────────────────────────────────────
+### 3. 이미지 분석 - PNG 파일
+### ──────────────────────────────────────────
+# @name analyzePng
+POST {{baseUrl}}{{apiPrefix}}/ai/images/analyze?prompt=이미지 속 텍스트를 모두 추출해줘
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="image"; filename="sample.png"
+Content-Type: image/png
+
+< ./sample.png
+------FormBoundary--
+
+### ──────────────────────────────────────────
+### 4. 이미지 분석 - image 없이 전송 (400 Bad Request 예상)
+### ──────────────────────────────────────────
+# @name analyzeNoImage
+POST {{baseUrl}}{{apiPrefix}}/ai/images/analyze
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary--
+
+### ──────────────────────────────────────────
+### 5. 이미지 생성 - 기본 크기 (size 생략 → 1024x1024)
+### ──────────────────────────────────────────
+# @name generateDefault
+POST {{baseUrl}}{{apiPrefix}}/ai/images/generate
+Content-Type: application/json
+
+{
+  "prompt": "노을지는 바다를 바라보는 흰 고양이"
+}
+
+### ──────────────────────────────────────────
+### 6. 이미지 생성 - 크기 명시 (1024x1024)
+### ──────────────────────────────────────────
+# @name generate1024
+POST {{baseUrl}}{{apiPrefix}}/ai/images/generate
+Content-Type: application/json
+
+{
+  "prompt": "사이버펑크 도시의 밤거리를 걷는 로봇",
+  "size": "1024x1024"
+}
+
+### ──────────────────────────────────────────
+### 7. 이미지 생성 - 크기 명시 (1792x1024, 와이드)
+### ──────────────────────────────────────────
+# @name generateWide
+POST {{baseUrl}}{{apiPrefix}}/ai/images/generate
+Content-Type: application/json
+
+{
+  "prompt": "봄날의 벚꽃 나무 아래 피크닉을 즐기는 사람들",
+  "size": "1792x1024"
+}
+
+### ──────────────────────────────────────────
+### 8. 이미지 생성 - prompt 없이 전송 (400 Bad Request 예상)
+### ──────────────────────────────────────────
+# @name generateNoPrompt
+POST {{baseUrl}}{{apiPrefix}}/ai/images/generate
+Content-Type: application/json
+
+{
+  "size": "1024x1024"
+}
+
+### ──────────────────────────────────────────
+### 9. 이미지 생성 - 빈 prompt (400 Bad Request 예상)
+### ──────────────────────────────────────────
+# @name generateEmptyPrompt
+POST {{baseUrl}}{{apiPrefix}}/ai/images/generate
+Content-Type: application/json
+
+{
+  "prompt": "   ",
+  "size": "1024x1024"
+}
