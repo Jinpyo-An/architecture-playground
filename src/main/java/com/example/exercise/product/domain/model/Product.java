@@ -12,6 +12,9 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -46,6 +49,12 @@ public class Product {
     @Column(nullable = false, length = 20)
     @Schema(description = "상태", example = "ACTIVE")
     private String status;
+
+    @Schema(hidden = true)
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
+    @Column(name = "embedding")
+    private float[] embedding;
 
     @Column(name = "reg_id", nullable = false)
     @Schema(description = "등록자 ID", example = "22222222-2222-2222-2222-222222222222")
