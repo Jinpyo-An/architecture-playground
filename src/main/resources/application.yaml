@@ -27,10 +27,10 @@ order:
 openai:
   api-key: ${OPENAI_API_KEY:}
   chat:
-    enabled: false
+    enabled: true
     model: gpt-5.4-mini
   embedding:
-    enabled: false
+    enabled: true
     model: text-embedding-3-small
   image-analysis:
     model: gpt-5.4-nano

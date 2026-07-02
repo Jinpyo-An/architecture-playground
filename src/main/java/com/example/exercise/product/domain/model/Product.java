@@ -118,6 +118,14 @@ public class Product {
         this.modifyId = modifierId;
     }
 
+    public void updateEmbedding(float[] embedding) {
+        this.embedding = embedding;
+    }
+
+    public float[] getEmbedding() {
+        return embedding;
+    }
+
     @PrePersist
     public void onCreate() {
         if (id == null) {

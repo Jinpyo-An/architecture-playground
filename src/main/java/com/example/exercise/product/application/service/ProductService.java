@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.exercise.product.application.acl.SellerValidationAcl;
+import com.example.exercise.product.application.vector.ProductEmbeddingService;
 import com.example.exercise.product.domain.model.SellerValidation;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class ProductService implements ProductUseCase {
 
     private final ProductRepository productRepository;
     private final SellerValidationAcl sellerValidationAcl;
+    private final ProductEmbeddingService productEmbeddingService;
 
     @Override
     @Transactional
@@ -42,6 +44,8 @@ public class ProductService implements ProductUseCase {
                 request.status(),
                 toUuid(request.creatorId(), "creatorId")
         );
+        productEmbeddingService.applyEmbedding(product);
+
         return productRepository.save(product);
     }
 
