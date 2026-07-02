@@ -14,5 +14,7 @@ public interface ProductRepository {
 
     List<Product> findAll();
 
+    List<Product> findNearestProducts(float[] embedding, int limit);
+
     void delete(Product product);
 }

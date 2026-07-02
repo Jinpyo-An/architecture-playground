@@ -6,14 +6,7 @@ import java.util.UUID;
 import com.example.exercise.product.application.service.ProductApplicationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.exercise.product.application.usecase.ProductUseCase;
 import com.example.exercise.product.domain.model.Product;
@@ -99,5 +92,19 @@ public class ProductController {
     public ResponseEntity<Void> refreshEmbeddings() {
         productApplicationService.refreshEmbeddings();
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/semantic-search")
+    @Operation(summary = "상품 의미 검색", description = "상품 이름과 설명 임베딩을 기준으로 가장 비슷한 상품을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    public List<Product> semanticSearch(
+            @Parameter(description = "검색어", example = "영상 편집용 노트북")
+            @RequestParam String query,
+            @Parameter(description = "최대 반환 개수", example = "5")
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return productApplicationService.semanticSearch(query, size);
     }
 }
