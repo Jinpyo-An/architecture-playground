@@ -3,6 +3,7 @@ package com.example.exercise.product.presentation;
 import java.util.List;
 import java.util.UUID;
 
+import com.example.exercise.product.application.service.ProductApplicationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
 
     private final ProductUseCase productUseCase;
+    private final ProductApplicationService productApplicationService;
 
     @PostMapping
     @Operation(summary = "상품 생성", description = "신규 상품을 생성합니다.")
@@ -86,6 +88,16 @@ public class ProductController {
     })
     public ResponseEntity<Void> delete(@Parameter(description = "상품 UUID") @PathVariable UUID productId) {
         productUseCase.delete(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/embeddings/refresh")
+    @Operation(summary = "상품 임베딩 재생성", description = "저장된 상품 전체에 대해 임베딩을 다시 생성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "재생성 완료")
+    })
+    public ResponseEntity<Void> refreshEmbeddings() {
+        productApplicationService.refreshEmbeddings();
         return ResponseEntity.noContent().build();
     }
 }
