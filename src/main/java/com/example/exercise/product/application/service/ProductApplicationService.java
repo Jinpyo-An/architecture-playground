@@ -1,9 +1,12 @@
 package com.example.exercise.product.application.service;
 
+import com.example.exercise.product.application.llm.ProductLlmAnswerGenerator;
 import com.example.exercise.product.application.vector.ProductEmbeddingService;
 import com.example.exercise.product.domain.model.Product;
 import com.example.exercise.product.domain.repository.ProductRepository;
+import com.example.exercise.product.presentation.dto.response.ProductLlmSearchResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +19,10 @@ public class ProductApplicationService {
 
     private final ProductRepository productRepository;
     private final ProductEmbeddingService productEmbeddingService;
+    private final ProductLlmAnswerGenerator productLlmAnswerGenerator;
+
+    @Value("${openai.chat.enabled:false}")
+    private boolean chatEnabled;
 
     public List<Product> semanticSearch(String query, int size) {
         int limit = normalizeSize(size);
@@ -83,5 +90,27 @@ public class ProductApplicationService {
     @Transactional
     public void refreshEmbeddings() {
         productEmbeddingService.refreshEmbeddings();
+    }
+
+    public ProductLlmSearchResponse llmSearch(String question, int size) {
+        String safeQuestion = question == null ? "" : question;
+        List<Product> products = semanticSearch(safeQuestion, size);
+        String answer = chatEnabled ? generateAnswer(safeQuestion, products) : fallbackAnswer(products);
+        return new ProductLlmSearchResponse(safeQuestion, answer, products);
+    }
+
+    private String generateAnswer(String question, List<Product> products) {
+        String answer = productLlmAnswerGenerator.generateAnswer(question, products);
+        if (answer == null || answer.isBlank()) {
+            return fallbackAnswer(products);
+        }
+        return answer;
+    }
+
+    private String fallbackAnswer(List<Product> products) {
+        if (products == null || products.isEmpty()) {
+            return "관련 상품을 찾지 못했습니다.";
+        }
+        return "검색된 상품을 기준으로 추천했습니다. 아래 목록을 확인해 주세요.";
     }
 }

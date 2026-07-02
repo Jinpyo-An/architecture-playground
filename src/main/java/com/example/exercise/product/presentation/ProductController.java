@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.exercise.product.application.service.ProductApplicationService;
+import com.example.exercise.product.presentation.dto.request.ProductLlmSearchRequest;
+import com.example.exercise.product.presentation.dto.response.ProductLlmSearchResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("${api.init}/product")
@@ -106,5 +109,19 @@ public class ProductController {
             @RequestParam(defaultValue = "5") int size
     ) {
         return productApplicationService.semanticSearch(query, size);
+    }
+
+    @PostMapping("/llm-search")
+    @Operation(summary = "상품 LLM 검색", description = "비슷한 상품을 찾고 검색 결과를 바탕으로 LLM이 답변을 생성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "검색 성공",
+                    content = @Content(schema = @Schema(implementation = ProductLlmSearchResponse.class)))
+    })
+    public ProductLlmSearchResponse llmSearch(@RequestBody ProductLlmSearchRequest request) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "request is required");
+        }
+        int size = request.size() == null ? 3 : request.size();
+        return productApplicationService.llmSearch(request.question(), size);
     }
 }
